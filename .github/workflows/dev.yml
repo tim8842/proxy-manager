@@ -43,5 +43,4 @@ jobs:
           fail_ci_if_error: true
           flags: unittests
           name: codecov-dev
-          token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
