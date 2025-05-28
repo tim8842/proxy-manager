@@ -1,0 +1,47 @@
+name: CI/CD - Development
+
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint with flake8
+        run: |
+          flake8 . --max-line-length=120
+
+      - name: Format with black
+        run: |
+          black . --line-length=120 --check
+
+      - name: Test with pytest and coverage
+        run: |
+          pytest --cov=. --cov-report term-missing --cov-fail-under=80 --junitxml=junit.xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true
+          flags: unittests
+          name: codecov-dev
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
