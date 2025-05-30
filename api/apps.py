@@ -22,9 +22,7 @@ class ApiConfig(AppConfig):
 
             from .tasks import delete_expired_proxies, update_user_statuses
 
-            self.scheduler.add_job(
-                delete_expired_proxies, "cron", id="delete_expired_proxies", hour="*"
-            )
+            self.scheduler.add_job(delete_expired_proxies, "cron", id="delete_expired_proxies", hour="*")
 
             self.scheduler.add_job(
                 update_user_statuses,
@@ -50,9 +48,7 @@ class ApiConfig(AppConfig):
                 shutdown_scheduler()
                 parent_pid = os.getpid()
                 parent = psutil.Process(parent_pid)
-                for child in parent.children(
-                    recursive=True
-                ):  # может быть больше одного потомка
+                for child in parent.children(recursive=True):  # может быть больше одного потомка
                     child.kill()
                 parent.kill()  # убиваем основной процесс
 
