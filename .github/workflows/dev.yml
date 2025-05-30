@@ -37,11 +37,12 @@ jobs:
         run: |
           pytest ./api/tests --cov=. --cov-report xml --cov-fail-under=80 --junitxml=junit.xml
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          fail_ci_if_error: true
-          flags: unittests
-          name: codecov-dev
-          verbose: true
-          files: coverage.xml
+      # пожеланию лимиты ебануто большие стоят у них
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     fail_ci_if_error: true
+      #     flags: unittests
+      #     name: codecov-dev
+      #     verbose: true
+      #     files: coverage.xml
