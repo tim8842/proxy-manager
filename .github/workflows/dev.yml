@@ -12,7 +12,10 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
-
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      CRYPTOGRAPHY_KEY: ${{ secrets.CRYPTOGRAPHY_KEY }}
+      DEBUG: True
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
