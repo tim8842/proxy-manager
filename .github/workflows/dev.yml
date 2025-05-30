@@ -11,8 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.11", "3.12"]
-
+        python-version: ["3.11", "3.12"]
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      CRYPTOGRAPHY_KEY: ${{ secrets.CRYPTOGRAPHY_KEY }}
+      DEBUG: True
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
@@ -25,22 +28,21 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Lint with flake8
+      - name: Lint and format check with Ruff
         run: |
-          flake8 . --max-line-length=120
-
-      - name: Format with black
-        run: |
-          black . --line-length=120 --check
+          ruff check . --line-length=120
+          ruff format . --check
 
       - name: Test with pytest and coverage
         run: |
-          pytest --cov=. --cov-report term-missing --cov-fail-under=80 --junitxml=junit.xml
+          pytest ./api/tests --cov=. --cov-report xml --cov-fail-under=80 --junitxml=junit.xml
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
-        with:
-          fail_ci_if_error: true
-          flags: unittests
-          name: codecov-dev
-          verbose: true
+      # пожеланию лимиты ебануто большие стоят у них
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v3
+      #   with:
+      #     fail_ci_if_error: true
+      #     flags: unittests
+      #     name: codecov-dev
+      #     verbose: true
+      #     files: coverage.xml

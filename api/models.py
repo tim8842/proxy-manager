@@ -76,12 +76,8 @@ class User(models.Model):
         related_name="users",
         help_text="Прокси-сервер, используемый для запросов",
     )
-    status = models.IntegerField(
-        default=200, help_text="Статус использования прокси и User-agent"
-    )
-    updated_at = models.DateTimeField(
-        auto_now=True, help_text="Дата и время последнего обновления записи"
-    )
+    status = models.IntegerField(default=200, help_text="Статус использования прокси и User-agent")
+    updated_at = models.DateTimeField(auto_now=True, help_text="Дата и время последнего обновления записи")
 
     class Meta:
         unique_together = ("user_agent", "proxy")

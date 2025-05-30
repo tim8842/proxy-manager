@@ -17,11 +17,7 @@ class ProxyAdminForm(forms.ModelForm):
         else:
             url_hash = hash_url(url)
             if self.instance.pk:
-                exists = (
-                    Proxy.objects.exclude(pk=self.instance.pk)
-                    .filter(url_hash=url_hash)
-                    .exists()
-                )
+                exists = Proxy.objects.exclude(pk=self.instance.pk).filter(url_hash=url_hash).exists()
             else:
                 exists = Proxy.objects.filter(url_hash=url_hash).exists()
 

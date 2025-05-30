@@ -23,9 +23,7 @@ def test_encrypted_char_field_encryption(encrypted_char_field):
     assert encrypted_value.startswith(ENCRYPTED_PREFIX)
     # Try to decrypt it back to verify (without touching database)
     cipher = Fernet(settings.CRYPTOGRAPHY_KEY.encode())
-    decrypted_text = cipher.decrypt(
-        encrypted_value[len(ENCRYPTED_PREFIX) :].encode()
-    ).decode()
+    decrypted_text = cipher.decrypt(encrypted_value[len(ENCRYPTED_PREFIX) :].encode()).decode()
     assert decrypted_text == plain_text
 
 
@@ -69,9 +67,7 @@ def test_encrypted_char_field_invalid_token(encrypted_char_field):
     Test that the field handles InvalidToken during decryption.
     """
     invalid_encrypted_value = "enc:invalid_token"
-    decrypted_value_from_db = encrypted_char_field.from_db_value(
-        invalid_encrypted_value, None, None
-    )
+    decrypted_value_from_db = encrypted_char_field.from_db_value(invalid_encrypted_value, None, None)
     assert decrypted_value_from_db == "(Decryption Error)"
     decrypted_value_to_python = encrypted_char_field.to_python(invalid_encrypted_value)
     assert decrypted_value_to_python == "(Decryption Error)"

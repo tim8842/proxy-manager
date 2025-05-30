@@ -28,9 +28,7 @@ class RandomUserView(generics.RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         if instance is None:
-            return Response(
-                status=404, data={"message": "Нет пользователей со статусом 200"}
-            )
+            return Response(status=404, data={"message": "Нет пользователей со статусом 200"})
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 

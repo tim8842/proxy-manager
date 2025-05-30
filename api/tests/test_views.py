@@ -33,11 +33,7 @@ def users():
     uo = []
     for ui in ua:
         for pi in p:
-            uo.append(
-                UserSerializer(
-                    User.objects.create(user_agent=ui, proxy=pi, status=200)
-                ).data
-            )
+            uo.append(UserSerializer(User.objects.create(user_agent=ui, proxy=pi, status=200)).data)
     return uo
 
 
