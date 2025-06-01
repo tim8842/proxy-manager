@@ -1,0 +1,94 @@
+name: CI/CD - Prod
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12"]
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      CRYPTOGRAPHY_KEY: ${{ secrets.CRYPTOGRAPHY_KEY }}
+      DEBUG: True
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint and format check with Ruff
+        run: |
+          ruff check . --line-length=120
+          ruff format . --check
+
+      - name: Test with pytest and coverage
+        run: |
+          pytest ./api/tests --cov=. --cov-report xml --cov-fail-under=80 --junitxml=junit.xml
+    
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      CRYPTOGRAPHY_KEY: ${{ secrets.CRYPTOGRAPHY_KEY }}
+      DEBUG: False
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up SSH connection
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            set -e
+            cd ~/proxy-manager || (echo "Клонируем репозиторий..." && git clone https://github.com/tim8842/proxy-manager.git ~/proxy-manager && cd ~/proxy-manager)
+            git pull origin main
+            if ! command -v python3.12 &> /dev/null; then
+              sudo add-apt-repository ppa:deadsnakes/ppa -y
+              sudo apt update
+              sudo apt install python3.12
+            fi
+            if ! dpkg -s python3.12-venv >/dev/null 2>&1; then
+              sudo apt update
+              sudo apt install python3.12-venv -y
+            fi
+
+            if [ ! -d "venv" ]; then
+              python3.12 -m venv venv
+            fi
+            source venv/bin/activate
+            pip install --upgrade pip
+            pip install -r requirements.txt
+            python manage.py migrate --noinput
+            python manage.py collectstatic
+            sudo mkdir -p /var/www/staticfiles
+            sudo mv /root/proxy-manager/staticfiles/* /var/www/staticfiles/
+            sudo chown -R www-data:www-data /var/www/staticfiles
+            sudo chmod -R 755 /var/www/staticfiles
+            if ! dpkg -l | grep nginx > /dev/null; then
+              sudo apt install nginx -y
+            fi
+            sudo cp ~/proxy-manager/nginx.conf /etc/nginx/sites-available/default
+            if [ ! -L /etc/nginx/sites-enabled/default ]; then
+              sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+            fi
+            sudo systemctl restart nginx
+            sudo systemctl daemon-reload                   
+            sudo systemctl restart gunicorn
+            #sudo systemctl enable gunicorn
+            #sudo systemctl enable nginx
