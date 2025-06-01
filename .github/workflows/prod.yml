@@ -45,6 +45,7 @@ jobs:
             python manage.py migrate --noinput
             python manage.py collectstatic
             sudo mkdir -p /var/www/staticfiles
+            sudo rm -rf /var/www/staticfiles/*
             sudo mv /root/proxy-manager/staticfiles/* /var/www/staticfiles/
             sudo chown -R www-data:www-data /var/www/staticfiles
             sudo chmod -R 755 /var/www/staticfiles
