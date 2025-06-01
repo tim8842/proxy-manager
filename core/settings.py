@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get("SECRET_KEY")
 DEBUG = os.environ.get("DEBUG", "False") == "True"
 CRYPTOGRAPHY_KEY = os.environ.get("CRYPTOGRAPHY_KEY")
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["83.222.25.147", "localhost", "127.0.0.1"]
 
 TESTING = "pytest" in sys.modules
 SCHEDULER_AUTOSTART = True
