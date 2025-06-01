@@ -24,6 +24,7 @@ jobs:
           script: |
             set -e
             cd ~/proxy-manager || (echo "Клонируем репозиторий..." && git clone https://github.com/tim8842/proxy-manager.git ~/proxy-manager && cd ~/proxy-manager)
+            git checkout .
             git pull origin main
             if ! command -v python3.12 &> /dev/null; then
               sudo add-apt-repository ppa:deadsnakes/ppa -y
