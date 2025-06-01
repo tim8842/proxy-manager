@@ -43,7 +43,7 @@ jobs:
             pip install --upgrade pip
             pip install -r requirements.txt
             python manage.py migrate --noinput
-            python manage.py collectstatic
+            python manage.py collectstatic --noinput
             sudo mkdir -p /var/www/staticfiles
             sudo rm -rf /var/www/staticfiles/*
             sudo mv /root/proxy-manager/staticfiles/* /var/www/staticfiles/
